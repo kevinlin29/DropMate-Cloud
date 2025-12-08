@@ -17,10 +17,6 @@ The system is deployed on **DigitalOcean Kubernetes (DOKS)** with a **React web 
 | Zongyan Yao  | 1005200836      | zongyan.yao@mail.utoronto.ca | Data & Infrastructure Engineer |
 | David Cao  | #########      | \<fill-in\>@mail.utoronto.ca | Observability & QA Engineer    |
 
-> **GitHub Repositories**
-> - Backend: `https://github.com/kevinlin29/dropmate-backend`
-> - Frontend: `https://github.com/kevinlin29/dropmate-frontend`
-
 ---
 
 ## 2. Motivation
@@ -50,7 +46,6 @@ From a course perspective, we wanted a project that exercises the full cloud sta
 - Orchestration and scaling with **Kubernetes on DOKS**  
 - **Stateful storage** (PostgreSQL) managed as a cluster resource  
 - **Real-time communication** (Socket.io, Redis)  
-- **CI/CD and observability** for a realistic deployment workflow  
 
 DropMate is the concrete implementation of these goals.
 
@@ -193,19 +188,11 @@ DropMate is the concrete implementation of these goals.
   - Render a map with live driver location.
   - Reflect real-time changes via WebSocket events.
 
-### 4.4 Tooling & CI/CD
+### 4.4 Tooling
 
 - **Containerization**
   - Dockerfiles in each backend service directory.
   - `docker-compose.yml` for local development (Postgres, Redis, services).
-
-- **CI/CD**
-  - GitHub Actions pipeline to:
-    - Run tests (where available).
-    - Build images for core services.
-    - Push images to DigitalOcean Container Registry.
-    - Optionally trigger `kubectl apply` or `doctl` commands for deployment.
-
 - **CLI Tools**
   - `docker`, `docker-compose`
   - `kubectl`
@@ -317,6 +304,14 @@ The frontend is intentionally kept lightweight but demonstrates core integration
 ## 6. User Guide
 
 <!-- Intentionally left for course demo-specific instructions (screenshots, step-by-step usage). -->
+## Deployed URL
+https://dropmate-frontend-ovkf3.ondigitalocean.app/
+
+With the following test credentials
+| Role     | Email                     | Password |
+|----------|---------------------------|----------|
+| Customer | admin@dropmate.com        | test123  |
+| Driver   | driverTest@dropmate.com   | test123  |
 
 ---
 
@@ -363,7 +358,11 @@ The frontend is intentionally kept lightweight but demonstrates core integration
 - Wrote and ran test scripts (e.g. `test-shipment-flow.js`) to simulate end-to-end flows.
 - Assisted with QA, including verifying scaling up/down and pod restart behavior.
 
-> Note: Individual contributions are also reflected in the Git commit history of the backend and frontend repositories.
+## Note for Grading
+
+Our team collaborated using a single Linux machine for development.  
+Because of this setup, most commits appear under one user account.  
+However, all team members contributed equally to the project, and we collectively acknowledge and agree on this representation.
 
 ---
 
