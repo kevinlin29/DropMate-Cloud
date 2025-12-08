@@ -1,6 +1,6 @@
 # DropMate – Cloud-Native Local Delivery Management System
 
-**Course:** ECE XXXX – Cloud / Container Orchestration Project  
+**Course:** ECE1779 – Introduction to Cloud Computing (Fall 2025)  
 **Project Type:** Kubernetes-orchestrated microservice backend with React web frontend
 
 DropMate is a cloud-native delivery management platform that lets small businesses manage parcels, drivers, and customers with **real-time tracking**, **persistent storage**, and **automated scaling**.  
@@ -13,7 +13,7 @@ The system is deployed on **DigitalOcean Kubernetes (DOKS)** with a **React web 
 | Name        | Student Number | Email                  | Role                           |
 |------------|----------------|------------------------|--------------------------------|
 | Qiwen Lin  | 1012495104     | Qw.lin@mail.utoronto.ca | Backend & Architecture Lead     |
-| Liz Zhu    | #########      | \<fill-in\>@mail.utoronto.ca | Frontend & UX Lead             |
+| Liz Zhu    | 1011844943      | Liz.zhu@mail.utoronto.ca | Frontend & UX Lead             |
 | Zongyan Yao  | 1005200836      | zongyan.yao@mail.utoronto.ca | Data & Infrastructure Engineer |
 | David Cao  | #########      | \<fill-in\>@mail.utoronto.ca | Observability & QA Engineer    |
 
@@ -25,251 +25,292 @@ The system is deployed on **DigitalOcean Kubernetes (DOKS)** with a **React web 
 
 ## 2. Motivation
 
-Local businesses (cafés, small shops, local groceries) often rely on **manual coordination** for deliveries:
+Many local businesses (cafés, small retailers, groceries) now offer delivery but still coordinate it using:
 
-- Orders tracked in spreadsheets or group chats  
-- Drivers coordinated via ad-hoc phone calls  
-- Customers get vague ETAs or no tracking at all  
-- No historical data for operations analysis  
-- Third-party platforms (e.g., marketplaces) are expensive and opaque
+- Ad-hoc phone calls with drivers  
+- Spreadsheets or chat groups for orders  
+- No real-time visibility for customers  
+- No historical data to improve operations  
 
-At the same time, cloud platforms like **DigitalOcean Kubernetes** and modern tools like **Docker, React, and Socket.io** make it feasible for a small team to build their own logistics backend with:
+Meanwhile, existing third-party platforms (e.g., marketplaces) provide good tracking but:
 
-- **Real-time delivery visibility** comparable to big platforms  
-- **Low operational cost** via autoscaling  
-- **Full data ownership** in a self-managed Postgres database  
-- **Automated deployments, logging, and monitoring**
+- Charge high commissions  
+- Do not expose operational data  
+- Lock businesses into their ecosystem  
 
-Our motivation was twofold:
+Our motivation was to build a system that a small business could **host themselves** to:
 
-1. **Solve a realistic problem** – building a system that local businesses could actually self-host to manage their deliveries.
-2. **Practice end-to-end cloud engineering** – from microservice design, Dockerization, and Kubernetes on DOKS, to observability, CI/CD, and a modern web frontend.
+- Track deliveries in real time (like a modern marketplace app)  
+- Own their **data and infrastructure**  
+- Keep cloud costs predictable and under their control  
 
-DropMate is the result: a small but complete cloud-native system that could be deployed, scaled, and operated in a real environment.
+From a course perspective, we wanted a project that exercises the full cloud stack:
+
+- Containerized microservices with **Docker**  
+- Orchestration and scaling with **Kubernetes on DOKS**  
+- **Stateful storage** (PostgreSQL) managed as a cluster resource  
+- **Real-time communication** (Socket.io, Redis)  
+- **CI/CD and observability** for a realistic deployment workflow  
+
+DropMate is the concrete implementation of these goals.
 
 ---
 
 ## 3. Objectives
 
-### Functional Objectives
+### 3.1 Functional Objectives
 
-- Provide a **backend API** for:
-  - Creating and managing shipments/orders
-  - Managing drivers and their availability
-  - Tracking real-time driver locations
-  - Emitting events when shipments are updated
-- Provide a **web frontend** for:
-  - Viewing all shipments and their status
-  - Tracking packages and live driver locations on a map
-  - Interacting with the backend in real time (WebSockets)
+- Build a backend that supports the core delivery workflow:
+  - Create and manage shipments (origin, destination, status).
+  - Register drivers and assign deliveries.
+  - Track driver locations and expose a “live location” API.
+  - Stream shipment updates to connected clients in real time.
+- Build a web dashboard that:
+  - Shows a list of shipments and their status.
+  - Lets users search/track by tracking number.
+  - Displays live driver location and status on a map.
 
-### Cloud / Systems Objectives
+### 3.2 Cloud / System Objectives
 
-- Package all components into **Docker containers**.
-- Orchestrate the system with **Kubernetes (DOKS)**:
-  - Use Deployments, StatefulSets, Services, and Ingress.
-  - Demonstrate **horizontal scaling** (HPA) and failover.
-- Use **stateful storage**:
-  - PostgreSQL for operational data
-  - Persistent volumes for durability
-- Use **Redis** for:
-  - Caching
-  - Lightweight messaging and pub/sub
-- Implement **observability**:
-  - Health checks, logs, and basic metrics
-- Implement **CI/CD**:
-  - Build and push container images
-  - Automate deployment to Kubernetes via scripts / GitHub Actions
+- **Containerization**
+  - Package each backend service into its own Docker image.
+  - Provide a `docker-compose` setup for local development.
 
-### Non-Functional Objectives
+- **Kubernetes (Chosen over Swarm)**
+  - Deploy all services on **DigitalOcean Kubernetes (DOKS)**.
+  - Use Deployments for stateless services and a StatefulSet for PostgreSQL.
+  - Expose services via a single NGINX Ingress + LoadBalancer.
+  - Configure Horizontal Pod Autoscalers (HPA) for core services.
 
-- Keep the system **modular** and **extensible** (each microservice independently deployable).
-- Maintain **clear documentation** for setup and operations.
-- Design something realistic enough that it could be extended into a production system.
+- **Stateful & Cache Layers**
+  - Use PostgreSQL with persistent volumes for durable data.
+  - Use Redis for:
+    - Caching hot data (e.g., latest locations).
+    - Lightweight pub/sub for real-time updates.
+
+- **Reliability & Observability**
+  - Implement health endpoints and probes for all services.
+  - Monitor resource usage and scaling behavior.
+  - Add a scaling-monitor service that sends email alerts when thresholds are crossed.
+
+- **Automation**
+  - Use GitHub Actions to:
+    - Build and test backend services.
+    - Build and push Docker images to DigitalOcean Container Registry.
+    - Optionally apply Kubernetes manifests as part of a deployment pipeline.
+
+### 3.3 Learning Objectives
+
+- Apply cloud computing concepts (containerization, orchestration, autoscaling) to a realistic use case.
+- Gain hands-on experience with:
+  - Kubernetes networking (Services, Ingress, DNS, TLS).
+  - Managing stateful workloads (Postgres StatefulSet).
+  - Integrating a React frontend with a real-time backend.
+  - Operating and debugging a live cluster.
+
 
 ---
 
 ## 4. Technical Stack
 
-### 4.1 Backend (Cloud & Microservices)
+### 4.1 Backend & Microservices
 
-- **Language & Runtime**
-  - Node.js (TypeScript / JavaScript)
-- **Microservices**
-  - `core-api` – REST API + WebSocket gateway (Socket.io)
-  - `location-service` – Driver GPS ingestion & geospatial logic
-  - `notification-service` – Real-time notification / WebSocket fan-out
-  - `scaling-monitor-service` – Observes HPA metrics and sends alerts
+- **Language / Runtime**
+  - Node.js (JavaScript)
 
-- **Infrastructure**
-  - **Kubernetes (DigitalOcean Kubernetes)**
-    - 2× `s-2vcpu-4gb` nodes (current setup)
-    - Namespaced resources (`dropmate` namespace)
-  - **Ingress**
-    - NGINX Ingress controller
-    - Single DigitalOcean LoadBalancer
-    - TLS via cert-manager + Let’s Encrypt
-  - **Database**
-    - PostgreSQL as a **StatefulSet**
-    - Persistent volume (10+ GB)
-  - **Cache / Messaging**
-    - Redis (cache + pub/sub)
+- **Services**
+  - **core-api**
+    - REST API for shipments, drivers, and tracking.
+    - Socket.io WebSocket server for shipment events.
+    - Integrates with PostgreSQL and Redis.
+  - **location-service**
+    - Receives driver GPS updates (REST).
+    - Stores latest locations in Redis.
+    - Provides APIs for querying driver position.
+  - **notification-service**
+    - Subscribes to internal events (Redis pub/sub).
+    - Broadcasts shipment/driver updates to WebSocket clients.
+  - **scaling-monitor-service**
+    - Talks to the Kubernetes API.
+    - Monitors HPA status and pod counts.
+    - Sends alerts via SendGrid when thresholds or anomalies occur.
 
-- **External Services**
-  - Firebase Admin SDK – authentication & token verification
-  - SendGrid – email alerts (e.g. scaling / health notifications)
-  - Expo Push – (optional) mobile push notification integration
+- **Infrastructure Components**
+  - **PostgreSQL**
+    - Deployed as a StatefulSet with PVCs.
+    - Stores shipments, drivers, and event history.
+  - **Redis**
+    - Deployed as a standard Deployment + Service.
+    - Used for caching and pub/sub.
 
-- **Containerization**
-  - Dockerfiles per service
-  - Local dev via `docker-compose.yml` (Postgres + Redis + services)
+- **External Integrations**
+  - **Firebase Admin SDK** – verify ID tokens (when auth is enabled).
+  - **SendGrid** – send scaling/health alerts.
+  - (Optional) **Expo Push** – push notifications if extended to mobile.
 
-- **Kubernetes Manifests**
-  - `k8s/digitalocean/`:
-    - `03-postgres.yaml` – StatefulSet + PVC
-    - `04-redis.yaml` – Redis Deployment/Service
-    - `05-core-api.yaml`, `06-location-service.yaml`, `07-notification-service.yaml`
-    - `08-ingress.yaml` – domain routing (api/location/notify)
-    - `10-scaling-monitor-rbac.yaml`, `11-scaling-monitor-service.yaml`
+### 4.2 Kubernetes & Cloud Platform
 
-### 4.2 Frontend (React Web Dashboard)
+- **Cloud Provider**
+  - DigitalOcean Kubernetes (DOKS)
+  - Cluster: `dropmate-cluster`, region `nyc1`
+  - Node pool: 2 × `s-2vcpu-4gb` (scalable to 3+ nodes)
+
+- **Key K8s Resources**
+  - Namespace: `dropmate`
+  - Deployments: core-api, location-service, notification-service, scaling-monitor-service, Redis.
+  - StatefulSet: PostgreSQL with persistent volume (≥ 10 GB).
+  - Services:
+    - ClusterIP for internal service-to-service traffic.
+    - NGINX Ingress for external HTTP routing.
+  - Ingress:
+    - Single LoadBalancer fronting NGINX Ingress controller.
+    - Routes domains like:
+      - `api.dropmate.ca` → core-api
+      - `location.dropmate.ca` → location-service
+      - `notify.dropmate.ca` → notification-service
+    - TLS certificates via cert-manager + Let’s Encrypt.
+
+- **Configuration & Secrets**
+  - Kubernetes Secrets for:
+    - DB credentials, JWT secret.
+    - Firebase, SendGrid, Redis URLs.
+  - ConfigMaps for non-secret configuration.
+
+### 4.3 Frontend (React Web Dashboard)
 
 - **Framework**
   - React 19 + Vite
-- **Key Libraries**
-  - Socket.io client – for real-time shipment updates
-  - React hooks + context – for UI and state management
-  - React Router (or simple router) – for navigation between views
-  - Google Maps JavaScript API – map rendering and address helpers
-- **Features**
-  - Responsive layout with CSS Grid
-  - Tracking page to:
-    - Enter tracking numbers
-    - View shipment list and statuses
-    - View driver location on a map (poll/real-time)
-  - Status timeline per shipment
 
-### 4.3 DevOps & Tooling
+- **Libraries**
+  - **Socket.io client** – subscribe to shipment and driver updates.
+  - **React Router (or equivalent)** – for navigating between views.
+  - **Google Maps JavaScript API** – for displaying maps and markers.
+  - **Axios or Fetch** – for calling backend APIs.
+
+- **Frontend Responsibilities**
+  - Show an overview of all shipments and their statuses.
+  - Provide a tracking view for a single shipment.
+  - Render a map with live driver location.
+  - Reflect real-time changes via WebSocket events.
+
+### 4.4 Tooling & CI/CD
+
+- **Containerization**
+  - Dockerfiles in each backend service directory.
+  - `docker-compose.yml` for local development (Postgres, Redis, services).
 
 - **CI/CD**
-  - GitHub Actions:
-    - Build & test services
-    - Build Docker images
-    - Push to DigitalOcean Container Registry
-    - Optional deploy step applying K8s manifests
+  - GitHub Actions pipeline to:
+    - Run tests (where available).
+    - Build images for core services.
+    - Push images to DigitalOcean Container Registry.
+    - Optionally trigger `kubectl apply` or `doctl` commands for deployment.
+
 - **CLI Tools**
-  - `doctl` – DigitalOcean CLI
-  - `kubectl` – Kubernetes management
-  - `docker` / `docker-compose`
+  - `docker`, `docker-compose`
+  - `kubectl`
+  - `doctl` (DigitalOcean CLI)
 
 ---
 
 ## 5. Features
 
-This section focuses on **backend + web frontend** features relevant to cloud and distributed systems.
+This section summarizes what DropMate implements from both an application and cloud standpoint.
 
-### 5.1 System-Level Features
+### 5.1 Microservice Architecture
 
-#### Microservice Architecture
+- System decomposed into **four backend services** (core-api, location, notification, scaling-monitor) plus **Postgres** and **Redis**.
+- Each service:
+  - Has its own Docker image.
+  - Has its own Kubernetes Deployment (or StatefulSet for Postgres).
+  - Can be scaled independently with `kubectl scale` or HPA rules.
 
-- Multiple independently deployable services:
-  - `core-api`, `location-service`, `notification-service`, `scaling-monitor-service`
-- Clear separation of concerns:
-  - `core-api` handles HTTP/REST, core business logic, and bridges to WebSockets.
-  - `location-service` focuses on driver coordinates and location updates.
-  - `notification-service` handles real-time outbound events to connected clients.
-- Shared infrastructure via Postgres and Redis, but each service can be scaled independently.
+This design demonstrates service separation, independent scaling, and clear ownership of responsibilities.
 
-#### Real-Time Delivery Tracking
+### 5.2 Real-Time Delivery Tracking
 
-- **Drivers** send GPS updates to the backend (via REST/Socket).
-- **Location service** stores the latest coordinates in Redis.
-- **Notification service** broadcasts updates to web clients over WebSockets.
-- **React frontend** subscribes to WebSocket events and updates the UI instantly:
-  - Live location marker on the map
-  - Live status changes on shipment cards
+- Drivers periodically send location updates to the **location-service**.
+- Location data is stored in Redis and exposed via HTTP APIs.
+- The **notification-service** subscribes to internal events and uses Socket.io to:
+  - Emit `shipment_updated` and `shipment_assigned` events.
+  - Push live updates to connected web clients.
+- The React frontend:
+  - Opens a WebSocket connection.
+  - Updates shipment cards and map markers as events arrive.
 
-#### Persistent & Durable Storage
+This satisfies the requirement for a real-time, cloud-connected application.
 
-- Postgres database stores:
-  - Shipments (IDs, origin/destination, status, timestamps)
-  - Driver profiles and assignments
-  - Basic user/customer data (depending on scope)
-- Implemented as a Kubernetes **StatefulSet** with persistent volumes:
-  - Survives pod restarts
-  - Verified by restarting database pods and confirming data remains
+### 5.3 Persistent & Durable Storage
 
-#### Autoscaling & High Availability
+- **PostgreSQL** as the main data store:
+  - Tables for shipments, drivers, and status events.
+  - Deployed via a **StatefulSet** with attached persistent volume.
+- Data survives:
+  - Pod restarts.
+  - Rolling deployments.
 
-- DigitalOcean Kubernetes cluster with:
-  - 2 worker nodes (scalable to 3+)
-  - NGINX Ingress with a single external LoadBalancer
-- Horizontal Pod Autoscaler (HPA) for stateless services:
-  - e.g. `core-api` can scale from 1 to N replicas based on CPU/memory
-- Sample helper scripts:
-  - `scale-up.sh` – scale services up (e.g. 4 replicas)
-  - `scale-down.sh` – scale services down (e.g. 1 replica)
+In local development, the same schema is used with Docker Compose. In the cluster, storage is backed by DigitalOcean block storage.
 
-#### Monitoring & Alerts
+### 5.4 Scalability & High Availability
 
-- Health endpoints for all services (e.g. `/health`):
-  - Used by Kubernetes liveness/readiness probes
+- Stateless services (core-api, location-service, notification-service, scaling-monitor) are deployed as Deployments with:
+  - Multiple replicas (e.g., 2–4).
+  - Readiness and liveness probes.
+- **Horizontal Pod Autoscalers (HPA)**:
+  - Monitor CPU/memory and scale replicas up/down.
+- Helper scripts:
+  - `scale-up.sh` – increase replica counts for load testing.
+  - `scale-down.sh` – reduce replicas to save cost.
+
+This demonstrates core cloud concepts: elasticity and fault tolerance.
+
+### 5.5 Monitoring, Health Checks & Alerts
+
+- Each service exposes `/health`:
+  - Used by Kubernetes liveness and readiness probes.
+  - Also used for quick manual checks (`curl /health`).
 - `scaling-monitor-service`:
-  - Watches HPA metrics / pod states via the Kubernetes API
-  - Sends alerts via SendGrid (e.g. if scaling events or anomalies occur)
-- Basic monitoring via:
-  - `kubectl top pods/nodes`
-  - `kubectl logs` and label-based queries
+  - Queries Kubernetes API about HPA and pod states.
+  - Sends email alerts (via SendGrid) when:
+    - Services reach high replica counts.
+    - Or anomalies are detected.
+- Operators can:
+  - Use `kubectl get pods`, `kubectl logs`, and `kubectl top` to inspect cluster health.
+  - Confirm that autoscaling and failover behave as expected.
 
-#### Security
+### 5.6 Security & Networking
 
-- Secrets handled via:
-  - Kubernetes Secrets (`01-secrets.yaml`)
-  - Environment variables managed by setup script
-- Authentication:
-  - Firebase Admin SDK for verifying ID tokens (when integrated)
-  - JWT secrets stored in K8s Secrets
-- TLS:
-  - NGINX Ingress with cert-manager + Let’s Encrypt (HTTPS endpoints like `https://api.dropmate.ca`)
+- **Network Access**
+  - Internal services are exposed as ClusterIP only.
+  - Public access is routed through NGINX Ingress + LoadBalancer.
+- **TLS**
+  - HTTPS endpoints (e.g., `https://api.dropmate.ca`) via cert-manager + Let’s Encrypt.
+- **Secrets Management**
+  - Kubernetes Secrets for:
+    - `DATABASE_URL`, `REDIS_URL`, JWT secret.
+    - Firebase and SendGrid credentials.
+- **Authentication (optional, when enabled)**
+  - Firebase Admin SDK verifies ID tokens passed from clients.
+  - Authenticated endpoints can restrict access to shipment data.
 
----
+### 5.7 Web Frontend Capabilities
 
-### 5.2 Backend API Features
+- **Shipment List View**
+  - Lists all known shipments.
+  - Status tags (e.g., pending, in transit, delivered).
+  - Ability to filter or search by tracking number.
+- **Tracking Detail View**
+  - Shows detailed information about a single shipment.
+  - Timeline of status changes.
+- **Live Map View**
+  - Uses Google Maps to show origin, destination, and current driver location.
+  - Updates marker position as WebSocket events arrive.
+- **Error & Loading States**
+  - Displays loading indicators while fetching data.
+  - Shows user-friendly messages when the backend is unavailable.
 
-Typical endpoints (simplified):
+The frontend is intentionally kept lightweight but demonstrates core integration patterns with a cloud backend.
 
-- `GET /health` – service health check
-- `GET /api/shipments` – list shipments
-- `GET /api/shipments/:id` – get shipment by ID
-- `GET /api/shipments/track/:trackingNumber` – track shipment by tracking number
-- `POST /api/shipments` – create a new shipment
-- `GET /api/shipments/:id/location` – latest driver location
-- `GET /api/shipments/:id/events` – status timeline
-
-Real-time events (WebSocket):
-
-- `shipment_updated` – broadcast when status or location changes
-- `shipment_assigned` – fired when a driver is assigned
-
----
-
-### 5.3 React Frontend Features
-
-- **Responsive layout**
-  - Works on desktop and smaller viewports
-  - Uses CSS Grid and media queries
-- **Shipment dashboard**
-  - List of shipments with their status (in transit, delivered, etc.)
-  - Search / filter by tracking number
-- **Tracking view**
-  - Input a tracking number
-  - See current state and timeline
-- **Live map**
-  - Displays driver location (polled or real-time)
-  - Uses Google Maps JavaScript API
-- **WebSocket integration**
-  - Connects to notification service via Socket.io
-  - Updates UI in real time without page refresh
 
 ---
 
