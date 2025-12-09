@@ -148,6 +148,8 @@ Example event flows:
 
 ## Development Guide
 
+> **Note for Local Development:** This repository is currently configured for **production deployment on DigitalOcean Kubernetes (DOKS)**. While Docker Compose files are included for local development, the environment configurations (`.env` files) point to production cluster endpoints rather than `localhost`. Local deployment may require modifying these configuration files to use local service URLs (`http://localhost:8080/api` instead of production IPs).
+
 Prerequisites: Node.js 18+, Docker, PostgreSQL 16, Redis 7, kubectl, doctl
 
 
@@ -271,12 +273,6 @@ Frontend local (overview):
 1. See `dropmate-frontend` for the React app.
 2. Install: `npm install` and set `.env.local` with API URLs, Google Maps key and Firebase config.
 3. Start dev server: `npm run dev` (default port `5173`).
-
----
-
-## Local Development vs Production Deployment
-
-DropMate is currently configured for **production deployment on DigitalOcean Kubernetes (DOKS)**. While the repository includes Docker Compose files for local development, the environment configurations (`.env` files) are set to point to production DOKS cluster endpoints rather than `localhost`. Running the application locally would require modifying these configuration files to use local service URLs. This is a common pattern in cloud-native development where production and local environments require different networking configurations—production uses Kubernetes service discovery and public IPs, while local development uses `localhost` on different ports.
 
 ---
 
