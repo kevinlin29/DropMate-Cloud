@@ -100,14 +100,16 @@ Demonstrate containerization, orchestration, and observability. Provide a workin
                     ▼                               ▼
         ┌───────────────────────┐       ┌──────────────────────┐
         │   Frontend (React)    │       │   Mobile Clients     │
-        │  dropmate-frontend    │       │   (Future)           │
-        │  ───────────────────  │       └──────────────────────┘
-        │  DO App Platform      │
-        │  HTTPS enabled        │
-        └───────────────────────┘
-                    │
-                    │ HTTPS API Calls
-                    ▼
+        │  dropmate-frontend    │       │  (iOS/Android)       │
+        │  ───────────────────  │       │                      │
+        │  DO App Platform      │       └──────────────────────┘
+        │  HTTPS enabled        │                   │
+        └───────────────────────┘                   │
+                    │                               │
+                    │ HTTPS API Calls               │ HTTPS API Calls
+                    │                               │
+                    └───────────────┬───────────────┘
+                                    ▼
         ┌───────────────────────────────────────────────────────┐
         │         Nginx Ingress Controller                      │
         │         ─────────────────────────                     │
@@ -134,23 +136,23 @@ Demonstrate containerization, orchestration, and observability. Provide a workin
         │           │                       │
         │ Auto-scale 1-10 pods              │
         ▼           ▼                       ▼
-┌──────────────────────────────────────────────────────┐
-│              Kubernetes Pod Layer                     │
-│  ┌────────┐ ┌────────┐ ┌────────┐  ┌────────┐      │
-│  │Core-API│ │Core-API│ │Location│  │ Notify │      │
-│  │  Pod 1 │ │  Pod 2 │ │  Pod 1 │  │  Pod 1 │      │
-│  └────────┘ └────────┘ └────────┘  └────────┘      │
+┌─────────────────────────────────────────────────────┐
+│              Kubernetes Pod Layer                   │
+│  ┌────────┐ ┌────────┐ ┌────────┐  ┌────────┐       │
+│  │Core-API│ │Core-API│ │Location│  │ Notify │       │
+│  │  Pod 1 │ │  Pod 2 │ │  Pod 1 │  │  Pod 1 │       │
+│  └────────┘ └────────┘ └────────┘  └────────┘       │
 │       │          │          │            │          │
 └───────┼──────────┼──────────┼────────────┼──────────┘
         │          │          │            │
-        └──────────┴──────────┴────────────┘
-                    │
-                    ▼
-        ┌───────────────────────┐
-        │   PostgreSQL          │
-        │   (Managed Service)   │
-        │   + Redis Cache       │
-        └───────────────────────┘
+        └──────────┴──────────┴────────────┴───────────┐
+                    │                                  │
+                    ▼                                  ▼
+        ┌───────────────────────┐         ┌──────────────────────┐
+        │   PostgreSQL          │         │   Email Service      │
+        │   (Managed Service)   │         │   (SendGrid)         │
+        │   + Redis Cache       │         │                      │
+        └───────────────────────┘         └──────────────────────┘
 ```
 
 
@@ -183,27 +185,14 @@ Demonstrate containerization, orchestration, and observability. Provide a workin
 # 6. Development Guide
 
 ### Backend Local Setup
-```
-git clone https://github.com/kevinlin29/dropmate-backend
-cd dropmate-backend
-docker-compose up --build
-```
+Follow the instructions in the [dropmate-backend](https://github.com/kevinlin29/dropmate-backend) repository.
 
 ### Frontend Local Setup
-```
-git clone https://github.com/kevinlin29/dropmate-frontend
-cd dropmate-frontend
-npm install
-npm run dev
-```
+Follow the instructions in the [dropmate-frontend](https://github.com/kevinlin29/dropmate-frontend) repository.
 
 ### Kubernetes Deployment
-```
-kubectl apply -f k8s/
-kubectl get pods -n dropmate
-```
+Follow the deployment instructions in the [dropmate-backend](https://github.com/kevinlin29/dropmate-backend/) repository.
 
----
 
 # 7. Individual Contributions
 
