@@ -274,6 +274,12 @@ Frontend local (overview):
 
 ---
 
+## Local Development vs Production Deployment
+
+DropMate is currently configured for **production deployment on DigitalOcean Kubernetes (DOKS)**. While the repository includes Docker Compose files for local development, the environment configurations (`.env` files) are set to point to production DOKS cluster endpoints rather than `localhost`. Running the application locally would require modifying these configuration files to use local service URLs. This is a common pattern in cloud-native development where production and local environments require different networking configurations—production uses Kubernetes service discovery and public IPs, while local development uses `localhost` on different ports.
+
+---
+
 ## Kubernetes Deployment (summary)
 
 Full manifests and scripts are under `dropmate-backend/k8s/digitalocean/`.
@@ -326,7 +332,7 @@ Driver | driverTest@dropmate.com | test123
 | Zongyan Yao | 1005200836 | zongyan.yao@mail.utoronto.ca | Frontend & UI/UX |
 | Yuhao Cao | 1004145329 | davidyh.cao@mail.utoronto.ca | Observability & QA Engineer |
 
-### Individual contributions (short)
+### Individual contributions
 
 - Qiwen Lin: Kubernetes architecture, Core API, NGINX ingress, PostgreSQL partitioning, Firebase Admin
 - Liz Zhu: DB schema & migrations, indexing & partitioning, PV/StatefulSet testing, query tuning
